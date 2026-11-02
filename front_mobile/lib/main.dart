@@ -76,7 +76,7 @@ class _MainNavigationState extends State<MainNavigation> {
       body: IndexedStack(
         index: currentIndex,
         children: [
-          const HomePage(),
+          HomePage(onIrParaServicos: () => setState(() => currentIndex = 1)),
           const ServicesPage(),
           const TestimonialsPage(),
           const ContactPage(),

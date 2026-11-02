@@ -5,7 +5,9 @@ import '../components/header_auventura.dart';
 import '../theme/cores.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.onIrParaServicos});
+
+  final VoidCallback? onIrParaServicos;
 
   static const cream = Cores.cream;
   static const sand = Cores.sand;
@@ -479,7 +481,7 @@ class HomePage extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: () {},
+              onPressed: onIrParaServicos,
               icon: const Icon(Icons.calendar_month_outlined),
               label: const Text(
                 'Fazer meu primeiro agendamento',
