@@ -20,6 +20,7 @@ class CampoForm extends StatelessWidget {
     this.teclado,
     this.capitalizacao = TextCapitalization.sentences,
     this.validar,
+    this.aoMudar,
     this.senha = false,
     this.autofill,
   });
@@ -33,6 +34,7 @@ class CampoForm extends StatelessWidget {
   final TextInputType? teclado;
   final TextCapitalization capitalizacao;
   final String? Function(String texto)? validar;
+  final ValueChanged<String>? aoMudar;
   final bool senha;
   final Iterable<String>? autofill;
 
@@ -56,6 +58,7 @@ class CampoForm extends StatelessWidget {
         autocorrect: !senha,
         autofillHints: autofill,
         inputFormatters: [LengthLimitingTextInputFormatter(limite)],
+        onChanged: aoMudar,
         style: GoogleFonts.dmSans(fontSize: 14, color: Cores.forest),
         validator: (valor) {
           final texto = valor?.trim() ?? '';

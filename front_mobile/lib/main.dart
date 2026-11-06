@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'pages/home_page.dart';
 import 'pages/services_page.dart';
@@ -24,6 +25,10 @@ class AuventuraApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'AUventura Park',
+      // Calendário e textos padrão do Flutter em português.
+      locale: const Locale('pt', 'BR'),
+      supportedLocales: const [Locale('pt', 'BR')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       theme: ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: const Color(0xFFFDF8F2),
@@ -50,6 +55,10 @@ class _MainNavigationState extends State<MainNavigation> {
   int currentIndex = 0;
   late bool _logado = sessao.logado;
 
+  // Como no site: quem faz login pelo "Agendar" continua em Serviços, no
+  // formulário do serviço; os outros logins abrem o My Pet.
+  bool _loginParaAgendar = false;
+
   @override
   void initState() {
     super.initState();
@@ -64,7 +73,9 @@ class _MainNavigationState extends State<MainNavigation> {
 
   void _aoMudarSessao() {
     setState(() {
-      if (sessao.logado && !_logado) currentIndex = _indiceMyPet;
+      if (sessao.logado && !_logado && !_loginParaAgendar) {
+        currentIndex = _indiceMyPet;
+      }
       if (!sessao.logado && currentIndex == _indiceMyPet) currentIndex = 0;
       _logado = sessao.logado;
     });
@@ -76,8 +87,8 @@ class _MainNavigationState extends State<MainNavigation> {
       body: IndexedStack(
         index: currentIndex,
         children: [
-          const HomePage(),
-          const ServicesPage(),
+          HomePage(onIrParaServicos: () => setState(() => currentIndex = 1)),
+          ServicesPage(loginParaAgendar: (ativo) => _loginParaAgendar = ativo),
           const TestimonialsPage(),
           const ContactPage(),
           if (_logado) const MyPetPage(),
