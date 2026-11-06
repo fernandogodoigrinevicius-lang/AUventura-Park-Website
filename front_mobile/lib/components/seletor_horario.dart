@@ -3,25 +3,27 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../theme/cores.dart';
 
-class TimeSlotPicker extends StatelessWidget {
-  const TimeSlotPicker({
+// Horários do dia separados em manhã e tarde. Os ocupados aparecem riscados
+// e não podem ser escolhidos.
+class SeletorHorario extends StatelessWidget {
+  const SeletorHorario({
     super.key,
-    required this.slots,
-    required this.selectedSlot,
-    required this.occupiedSlots,
-    required this.isLoading,
-    required this.onSelected,
+    required this.horarios,
+    required this.selecionado,
+    required this.ocupados,
+    required this.carregando,
+    required this.onSelecionar,
   });
 
-  final List<String> slots;
-  final String? selectedSlot;
-  final List<String> occupiedSlots;
-  final bool isLoading;
-  final ValueChanged<String> onSelected;
+  final List<String> horarios;
+  final String? selecionado;
+  final List<String> ocupados;
+  final bool carregando;
+  final ValueChanged<String> onSelecionar;
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
+    if (carregando) {
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 24),
         alignment: Alignment.center,
@@ -45,7 +47,7 @@ class TimeSlotPicker extends StatelessWidget {
       );
     }
 
-    if (slots.isEmpty) {
+    if (horarios.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -60,31 +62,24 @@ class TimeSlotPicker extends StatelessWidget {
       );
     }
 
-    final slotsManha = slots.where((s) {
-      final h = int.tryParse(s.split(':').first) ?? 0;
-      return h < 12;
-    }).toList();
-
-    final slotsTarde = slots.where((s) {
-      final h = int.tryParse(s.split(':').first) ?? 0;
-      return h >= 12;
-    }).toList();
+    final manha = horarios.where((h) => _hora(h) < 12).toList();
+    final tarde = horarios.where((h) => _hora(h) >= 12).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (slotsManha.isNotEmpty) ...[
-          _blocoPeriodo('🌅 Manhã', slotsManha),
+        if (manha.isNotEmpty) ...[
+          _blocoPeriodo('🌅 Manhã', manha),
           const SizedBox(height: 14),
         ],
-        if (slotsTarde.isNotEmpty) ...[
-          _blocoPeriodo('☀️ Tarde', slotsTarde),
-        ],
+        if (tarde.isNotEmpty) ...[_blocoPeriodo('☀️ Tarde', tarde)],
       ],
     );
   }
 
-  Widget _blocoPeriodo(String titulo, List<String> slotsPeriodo) {
+  int _hora(String horario) => int.tryParse(horario.split(':').first) ?? 0;
+
+  Widget _blocoPeriodo(String titulo, List<String> horariosDoPeriodo) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -100,13 +95,16 @@ class TimeSlotPicker extends StatelessWidget {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: slotsPeriodo.map((slot) {
-            final ocupado = occupiedSlots.contains(slot);
-            final selecionado = selectedSlot == slot;
+          children: horariosDoPeriodo.map((horario) {
+            final ocupado = ocupados.contains(horario);
+            final ativo = selecionado == horario;
 
             if (ocupado) {
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(12),
@@ -116,7 +114,7 @@ class TimeSlotPicker extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      slot,
+                      horario,
                       style: GoogleFonts.dmSans(
                         fontSize: 13,
                         color: Colors.grey.shade400,
@@ -138,19 +136,22 @@ class TimeSlotPicker extends StatelessWidget {
             }
 
             return InkWell(
-              onTap: () => onSelected(slot),
+              onTap: () => onSelecionar(horario),
               borderRadius: BorderRadius.circular(12),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 9,
+                ),
                 decoration: BoxDecoration(
-                  color: selecionado ? Cores.bark : Colors.white,
+                  color: ativo ? Cores.bark : Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: selecionado ? Cores.bark : Cores.border,
-                    width: selecionado ? 1.5 : 1,
+                    color: ativo ? Cores.bark : Cores.border,
+                    width: ativo ? 1.5 : 1,
                   ),
-                  boxShadow: selecionado
+                  boxShadow: ativo
                       ? [
                           BoxShadow(
                             color: Cores.bark.withValues(alpha: 0.25),
@@ -161,11 +162,11 @@ class TimeSlotPicker extends StatelessWidget {
                       : null,
                 ),
                 child: Text(
-                  slot,
+                  horario,
                   style: GoogleFonts.dmSans(
                     fontSize: 13,
-                    fontWeight: selecionado ? FontWeight.w700 : FontWeight.w500,
-                    color: selecionado ? Colors.white : Cores.forest,
+                    fontWeight: ativo ? FontWeight.w700 : FontWeight.w500,
+                    color: ativo ? Colors.white : Cores.forest,
                   ),
                 ),
               ),

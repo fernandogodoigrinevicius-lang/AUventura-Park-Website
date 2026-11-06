@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../components/aviso.dart';
-import '../components/dialog_cadastrar_pet.dart';
+import '../components/modal_cadastrar_pet.dart';
 import '../components/header_auventura.dart';
 import '../models/pet.dart';
 import '../services/api_client.dart';
@@ -56,7 +56,7 @@ class _MyPetPageState extends State<MyPetPage> {
   }
 
   Future<void> _cadastrarPet() async {
-    final novoPet = await ModalCadastrarPet.show(context);
+    final novoPet = await ModalCadastrarPet.abrir(context);
     if (novoPet != null && mounted) {
       setState(() => _pets.add(novoPet));
       ScaffoldMessenger.of(context).showSnackBar(
@@ -295,12 +295,14 @@ class _MyPetPageState extends State<MyPetPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Meus Pets',
-              style: GoogleFonts.fraunces(
-                fontSize: 22,
-                fontWeight: FontWeight.w900,
-                color: Cores.forest,
+            Expanded(
+              child: Text(
+                'Meus Pets',
+                style: GoogleFonts.fraunces(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: Cores.forest,
+                ),
               ),
             ),
             FilledButton.icon(

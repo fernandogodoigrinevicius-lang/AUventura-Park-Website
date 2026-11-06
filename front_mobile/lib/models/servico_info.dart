@@ -17,7 +17,9 @@ class ServicoInfo {
   final String descricao;
   final int duracaoMinutos;
 
-  bool get temSlots => duracaoMinutos > 0;
+  // O Daycare não tem horário: ele abre o formulário de planos
+  // (pages/daycare_view.dart). Os outros serviços usam os slots abaixo.
+  bool get ehDaycare => id == 'daycare';
 
   List<String> gerarSlots() {
     final slots = <String>[];
@@ -41,7 +43,18 @@ class ServicoInfo {
   }
 }
 
+// Mesma ordem do site.
 const servicosDisponiveis = <ServicoInfo>[
+  ServicoInfo(
+    id: 'daycare',
+    label: 'Daycare',
+    emoji: '🏡',
+    imagemAsset: 'assets/images/daycare.jpg',
+    resumo: 'Cuidado e diversão o dia todo enquanto você trabalha.',
+    descricao:
+        'No nosso Daycare, seu pet passa o dia em um ambiente seguro, supervisionado e cheio de amigos. Oferecemos atividades lúdicas, socialização controlada e muito carinho para que ele chegue em casa feliz e saudável.',
+    duracaoMinutos: 0,
+  ),
   ServicoInfo(
     id: 'banho',
     label: 'Banho',
@@ -83,70 +96,4 @@ const servicosDisponiveis = <ServicoInfo>[
         'Trabalhamos comandos básicos e avançados com método positivo. Cada sessão é adaptada ao perfil do seu cão, respeitando seu ritmo e personalidade.',
     duracaoMinutos: 60,
   ),
-  ServicoInfo(
-    id: 'daycare',
-    label: 'Daycare',
-    emoji: '🏡',
-    imagemAsset: 'assets/images/daycare.jpg',
-    resumo: 'Cuidado e diversão o dia todo enquanto você trabalha.',
-    descricao:
-        'No nosso Daycare, seu pet passa o dia em um ambiente seguro, supervisionado e cheio de amigos. Oferecemos atividades lúdicas, socialização controlada e muito carinho para que ele chegue em casa feliz e saudável.',
-    duracaoMinutos: 0,
-  ),
-];
-
-const racasPopulares = <String>[
-  'Akita',
-  'American Bully',
-  'Basenji',
-  'Beagle',
-  'Bichon Frisé',
-  'Border Collie',
-  'Boston Terrier',
-  'Boxer',
-  'Buldogue Francês',
-  'Buldogue Inglês',
-  'Cavalier King Charles',
-  'Chihuahua',
-  'Chow Chow',
-  'Cocker Spaniel',
-  'Dachshund',
-  'Dálmata',
-  'Dobermann',
-  'Dogo Argentino',
-  'Fila Brasileiro',
-  'Golden Retriever',
-  'Husky Siberiano',
-  'Jack Russell Terrier',
-  'Labrador Retriever',
-  'Lhasa Apso',
-  'Malamute do Alasca',
-  'Maltês',
-  'Mastiff',
-  'Pinscher Miniatura',
-  'Pit Bull',
-  'Pomerânia',
-  'Poodle',
-  'Pug',
-  'Rottweiler',
-  'Samoieda',
-  'Schnauzer',
-  'Shar Pei',
-  'Shih Tzu',
-  'Spitz Alemão',
-  'Sem raça definida (SRD)',
-  'Weimaraner',
-  'Yorkshire Terrier',
-];
-
-class VacinaInfo {
-  const VacinaInfo({required this.id, required this.label});
-  final String id;
-  final String label;
-}
-
-const vacinasDisponiveis = <VacinaInfo>[
-  VacinaInfo(id: 'antirrabica', label: 'Antirrábica'),
-  VacinaInfo(id: 'polivalente', label: 'Polivalente'),
-  VacinaInfo(id: 'traqueobronquite', label: 'Traqueobronquite'),
 ];

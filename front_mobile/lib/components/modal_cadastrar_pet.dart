@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../models/pet.dart';
-import '../models/servico_info.dart';
 import '../services/api_client.dart';
 import '../services/pets_service.dart';
 import '../services/sessao.dart';
@@ -10,10 +9,22 @@ import '../theme/cores.dart';
 import 'aviso.dart';
 import 'campo_form.dart';
 
+String? _validarIdade(String texto) {
+  final idade = int.tryParse(texto);
+  return idade == null || idade <= 0 ? 'Idade inválida' : null;
+}
+
+String? _validarPeso(String texto) {
+  final peso = double.tryParse(texto.replaceAll(',', '.'));
+  return peso == null || peso <= 0 ? 'Peso inválido' : null;
+}
+
+// Cadastro de pet que sobe de baixo da tela. Devolve o pet criado, ou nulo
+// se o tutor fechar sem salvar.
 class ModalCadastrarPet extends StatefulWidget {
   const ModalCadastrarPet({super.key});
 
-  static Future<Pet?> show(BuildContext context) {
+  static Future<Pet?> abrir(BuildContext context) {
     return showModalBottomSheet<Pet>(
       context: context,
       isScrollControlled: true,
@@ -47,37 +58,34 @@ class _ModalCadastrarPetState extends State<ModalCadastrarPet> {
     super.dispose();
   }
 
+  // Igual ao site: até 6 raças que começam com o que foi digitado.
   void _aoDigitarRaca(String val) {
-    if (val.trim().isEmpty) {
-      setState(() => _sugestoesRaca = []);
-      return;
-    }
-    final filtro = val.toLowerCase();
+    final filtro = val.trim().toLowerCase();
     setState(() {
-      _sugestoesRaca = racasPopulares
-          .where((r) => r.toLowerCase().contains(filtro))
-          .take(4)
-          .toList();
+      _sugestoesRaca = filtro.isEmpty
+          ? []
+          : racasPopulares
+                .where((r) => r.toLowerCase().startsWith(filtro))
+                .take(6)
+                .toList();
     });
+  }
+
+  void _escolherRaca(String raca) {
+    _raca.value = TextEditingValue(
+      text: raca,
+      selection: TextSelection.collapsed(offset: raca.length),
+    );
+    setState(() => _sugestoesRaca = []);
   }
 
   Future<void> _salvar() async {
     if (!_formKey.currentState!.validate()) return;
     final token = sessao.token;
     if (token == null) {
-      setState(() => _erro = 'Você precisa estar logado para cadastrar um pet.');
-      return;
-    }
-
-    final idadeNum = int.tryParse(_idade.text.trim());
-    final pesoNum = double.tryParse(_peso.text.trim().replaceAll(',', '.'));
-
-    if (idadeNum == null || idadeNum <= 0) {
-      setState(() => _erro = 'Idade inválida.');
-      return;
-    }
-    if (pesoNum == null || pesoNum <= 0) {
-      setState(() => _erro = 'Peso inválido.');
+      setState(
+        () => _erro = 'Você precisa estar logado para cadastrar um pet.',
+      );
       return;
     }
 
@@ -90,8 +98,9 @@ class _ModalCadastrarPetState extends State<ModalCadastrarPet> {
       final novoPet = await apiCreatePet(
         token,
         nome: _nome.text.trim(),
-        idade: idadeNum,
-        peso: pesoNum,
+        // Os campos já passaram pelo _validarIdade e pelo _validarPeso.
+        idade: int.parse(_idade.text.trim()),
+        peso: double.parse(_peso.text.trim().replaceAll(',', '.')),
         raca: _raca.text.trim(),
         vacinas: _vacinasSelecionadas.toList(),
       );
@@ -123,31 +132,28 @@ class _ModalCadastrarPetState extends State<ModalCadastrarPet> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: Cores.sand,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Center(
-                          child: Text('🐾', style: TextStyle(fontSize: 18)),
-                        ),
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: Cores.sand,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Center(
+                      child: Text('🐾', style: TextStyle(fontSize: 18)),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Cadastrar Novo Pet',
+                      style: GoogleFonts.fraunces(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: Cores.forest,
                       ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'Cadastrar Novo Pet',
-                        style: GoogleFonts.fraunces(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: Cores.forest,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, color: Cores.muted),
@@ -172,6 +178,7 @@ class _ModalCadastrarPetState extends State<ModalCadastrarPet> {
                       dica: 'Ex: 3',
                       teclado: TextInputType.number,
                       limite: 3,
+                      validar: _validarIdade,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -180,8 +187,11 @@ class _ModalCadastrarPetState extends State<ModalCadastrarPet> {
                       controller: _peso,
                       rotulo: 'Peso (kg)',
                       dica: 'Ex: 12.5',
-                      teclado: const TextInputType.numberWithOptions(decimal: true),
+                      teclado: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       limite: 6,
+                      validar: _validarPeso,
                     ),
                   ),
                 ],
@@ -191,10 +201,7 @@ class _ModalCadastrarPetState extends State<ModalCadastrarPet> {
                 rotulo: 'Raça',
                 dica: 'Ex: Golden Retriever ou SRD',
                 limite: 100,
-                validar: (val) {
-                  _aoDigitarRaca(val);
-                  return null;
-                },
+                aoMudar: _aoDigitarRaca,
               ),
               if (_sugestoesRaca.isNotEmpty) ...[
                 Wrap(
@@ -211,10 +218,7 @@ class _ModalCadastrarPetState extends State<ModalCadastrarPet> {
                       ),
                       backgroundColor: Colors.white,
                       side: const BorderSide(color: Cores.border),
-                      onPressed: () {
-                        _raca.text = raca;
-                        setState(() => _sugestoesRaca = []);
-                      },
+                      onPressed: () => _escolherRaca(raca),
                     );
                   }).toList(),
                 ),

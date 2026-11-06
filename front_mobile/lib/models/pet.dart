@@ -62,3 +62,60 @@ class Pet {
     return DateTime.tryParse(texto.endsWith('Z') ? texto : '${texto}Z')?.toLocal();
   }
 }
+
+// Listas usadas no cadastro de pet (as mesmas do site).
+const racasPopulares = <String>[
+  'Akita',
+  'American Bully',
+  'Basenji',
+  'Beagle',
+  'Bichon Frisé',
+  'Border Collie',
+  'Boston Terrier',
+  'Boxer',
+  'Buldogue Francês',
+  'Buldogue Inglês',
+  'Cavalier King Charles',
+  'Chihuahua',
+  'Chow Chow',
+  'Cocker Spaniel',
+  'Dachshund',
+  'Dálmata',
+  'Dobermann',
+  'Dogo Argentino',
+  'Fila Brasileiro',
+  'Golden Retriever',
+  'Husky Siberiano',
+  'Jack Russell Terrier',
+  'Labrador Retriever',
+  'Lhasa Apso',
+  'Malamute do Alasca',
+  'Maltês',
+  'Mastiff',
+  'Pinscher Miniatura',
+  'Pit Bull',
+  'Pomerânia',
+  'Poodle',
+  'Pug',
+  'Rottweiler',
+  'Samoieda',
+  'Schnauzer',
+  'Shar Pei',
+  'Shih Tzu',
+  'Spitz Alemão',
+  'Sem raça definida (SRD)',
+  'Weimaraner',
+  'Yorkshire Terrier',
+];
+
+class VacinaInfo {
+  const VacinaInfo({required this.id, required this.label});
+  final String id;
+  final String label;
+}
+
+const vacinasDisponiveis = <VacinaInfo>[
+  VacinaInfo(id: 'antirrabica', label: 'Antirrábica'),
+  VacinaInfo(id: 'polivalente', label: 'Polivalente'),
+  VacinaInfo(id: 'traqueobronquite', label: 'Traqueobronquite'),
+];
