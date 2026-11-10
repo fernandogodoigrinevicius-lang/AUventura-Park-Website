@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../pages/login_page.dart';
+import '../pages/notificacoes_page.dart';
 import '../services/sessao.dart';
 import '../theme/cores.dart';
 
@@ -64,8 +65,28 @@ class HeaderAuventura extends StatelessWidget implements PreferredSizeWidget {
           ),
         ],
       ),
-      actions: const [
-        Padding(
+            actions: [
+        ListenableBuilder(
+          listenable: sessao,
+          builder: (context, _) {
+            final token = sessao.token;
+            if (token == null) return const SizedBox.shrink();
+
+            return IconButton(
+              tooltip: 'Notificações',
+              color: Cores.forest,
+              icon: const Icon(Icons.notifications_none),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => NotificacoesPage(token: token),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+        const Padding(
           padding: EdgeInsets.only(right: 10),
           child: _MenuUsuario(),
         ),
